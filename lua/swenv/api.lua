@@ -57,6 +57,21 @@ M.get_venvs = function(venvs_path)
     end
   end
 
+  local pipfile_exe = vim.fn.executable('pipenv')
+  local pipfile_path = vim.fn.getcwd() .. '/Pipfile'
+
+  if pipfile_exe ~= vim.NIL and Path:new(pipfile_path):exists() then
+    local pipfile_env_path = vim.env.HOME .. '/.local/share/virtualenvs'
+    local pipfile_paths = scan_dir(pipfile_env_path, { depth = 1, only_dirs = true, silent = true })
+    for _, path in ipairs(pipfile_paths) do
+      table.insert(venvs, {
+        name = Path:new(path):make_relative(pipfile_env_path),
+        path = path,
+        source = 'pipenv',
+      })
+    end
+  end
+
   -- VENV
   local paths = scan_dir(venvs_path, { depth = 1, only_dirs = true, silent = true })
   for _, path in ipairs(paths) do
